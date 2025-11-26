@@ -22,7 +22,7 @@ public class UserTests {
     }
 
     @Test
-    public void UserValidInputAddTest() {
+    public void userValidInputAddTest() {
         User user = new User();
         user.setName("Andrew");
         user.setEmail("123@");
@@ -34,7 +34,7 @@ public class UserTests {
     }
 
     @Test
-    public void UserEmptyEmailTest() {
+    public void userEmptyEmailTest() {
         User user = new User();
         user.setName("Andrew");
         user.setEmail("");
@@ -47,7 +47,7 @@ public class UserTests {
     }
 
     @Test
-    public void UserEmailDoesNotContainAtSymbolTest() {
+    public void userEmailDoesNotContainAtSymbolTest() {
         User user = new User();
         user.setName("Andrew");
         user.setEmail("123");
@@ -60,7 +60,7 @@ public class UserTests {
     }
 
     @Test
-    public void UserLoginEmptyTest() {
+    public void userLoginEmptyTest() {
         User user = new User();
         user.setName("Andrew");
         user.setEmail("123@");
@@ -74,7 +74,7 @@ public class UserTests {
     }
 
     @Test
-    public void UserEmptyNameReplacedWithLoginTest() {
+    public void userEmptyNameReplacedWithLoginTest() {
         User user = new User();
         user.setEmail("123@");
         user.setLogin("asdfasdfasdf");
@@ -86,7 +86,7 @@ public class UserTests {
     }
 
     @Test
-    public void UserFutureBirthdateTest() {
+    public void userFutureBirthdateTest() {
         User user = new User();
         user.setName("Andrew");
         user.setEmail("123@");
@@ -101,7 +101,7 @@ public class UserTests {
     }
 
     @Test
-    public void UserUpdateTest() {
+    public void userUpdateTest() {
         User user = new User();
         user.setName("Andrew");
         user.setEmail("123@");
@@ -119,7 +119,7 @@ public class UserTests {
 
     //тест пустого запроса
     @Test
-    public void EmptyRequestTest() {
+    public void emptyRequestTest() {
         assertThrows(NullPointerException.class, () -> {
             controller.addUser(null);
         });

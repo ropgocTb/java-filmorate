@@ -6,7 +6,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Month;
 
@@ -22,7 +21,7 @@ class FilmsTests {
     }
 
     @Test
-    public void FilmAddValidTest() {
+    public void filmAddValidTest() {
         Film film = new Film();
         film.setName("Requiem for a Dream");
         film.setDescription("не надо употреблять, не надо, реально, ну зачем? (reason?)");
@@ -34,7 +33,7 @@ class FilmsTests {
     }
 
 	@Test
-    public void FilmEmptyNameTest() {
+    public void filmEmptyNameTest() {
         Film film = new Film();
         assertThrows(RuntimeException.class, () -> {
             Film film1 = controller.addFilm(film);
@@ -42,7 +41,7 @@ class FilmsTests {
     }
 
     @Test
-    public void FilmMaxCharactersTest() {
+    public void filmMaxCharactersTest() {
         Film film = new Film();
         film.setName("Requiem for a Dream");
         film.setDescription("?".repeat(200));
@@ -54,7 +53,7 @@ class FilmsTests {
     }
 
     @Test
-    public void FilmMaxCharactersPlusOneTest() {
+    public void filmMaxCharactersPlusOneTest() {
         Film film = new Film();
         film.setName("Requiem for a Dream");
         film.setDescription("?".repeat(201));
@@ -67,7 +66,7 @@ class FilmsTests {
     }
 
     @Test
-    public void FilmReleaseDateTest() {
+    public void filmReleaseDateTest() {
         Film film = new Film();
         film.setName("Requiem for a Dream");
         film.setDescription("?".repeat(201));
@@ -80,7 +79,7 @@ class FilmsTests {
     }
 
     @Test
-    public void FilmDurationFilmNegativeTest() {
+    public void filmDurationFilmNegativeTest() {
         Film film = new Film();
         film.setName("Requiem for a Dream");
         film.setDescription("не надо употреблять, не надо, реально, ну зачем? (reason?)");
@@ -93,7 +92,7 @@ class FilmsTests {
     }
 
     @Test
-    public void FilmUpdateTest() {
+    public void filmUpdateTest() {
         Film film = new Film();
         film.setName("Requiem for a Dream");
         film.setDescription("не надо употреблять, не надо, реально, ну зачем? (reason?)");
@@ -110,7 +109,7 @@ class FilmsTests {
 
     //тест пустого запроса
     @Test
-    public void EmptyRequestTest() {
+    public void emptyRequestTest() {
         assertThrows(NullPointerException.class, () -> {
             controller.addFilm(null);
         });
