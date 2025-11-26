@@ -2,9 +2,6 @@ package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
 
 import java.time.Duration;
 import java.time.LocalDate;
