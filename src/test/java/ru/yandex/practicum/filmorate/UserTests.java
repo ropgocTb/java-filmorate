@@ -124,4 +124,18 @@ public class UserTests {
             controller.addUser(null);
         });
     }
+
+    @Test
+    public void loginWithAWhiteSpaceTest() {
+        User user = new User();
+        user.setLogin("1 1");
+        user.setBirthday(LocalDate.now().minusDays(1));
+        user.setEmail("123@");
+        user.setName("Name");
+
+        assertThrows(RuntimeException.class, () -> {
+           controller.addUser(user);
+        });
+        assertEquals(0, controller.getUsers().size(), "пользователь с пробелом в логине добавился");
+    }
 }
