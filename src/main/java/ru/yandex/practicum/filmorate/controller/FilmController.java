@@ -55,11 +55,12 @@ public class FilmController {
     private void validateFilm(Film film) {
         if (film.getName() == null || film.getName().isEmpty())
             throw new ValidationException("Название фильма не может быть пустым");
-        if (film.getDescription().length() > 200)
+        if (film.getDescription() == null || film.getDescription().length() > 200)
             throw new ValidationException("Описание фильма не может быть больше 200 смволов");
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28)))
+        if (film.getReleaseDate() == null
+                || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28)))
             throw new ValidationException("дата создания фильма не должна быть раньше 28 декабря 1895");
-        if (film.getDuration() < 0)
+        if (film.getDuration() <= 0)
             throw new ValidationException("длительность фильма не может быть отрицательной");
     }
 }
