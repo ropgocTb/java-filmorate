@@ -15,6 +15,8 @@ public class Film {
     private LocalDate releaseDate;
     private Duration duration;
     private Set<Long> likes = new HashSet<>();
+    private Set<Genre> genre;
+    private Rating rating;
 
     public long getDuration() {
         return duration.toMinutes();
