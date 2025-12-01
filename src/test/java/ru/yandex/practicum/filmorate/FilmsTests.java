@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -18,7 +21,9 @@ class FilmsTests {
 
     @BeforeEach
     public void init() {
-        controller = new FilmController();
+        InMemoryFilmStorage filmStorage = new InMemoryFilmStorage();
+        InMemoryUserStorage userStorage = new InMemoryUserStorage();
+        controller = new FilmController(new FilmService(filmStorage, userStorage));
     }
 
     @Test
