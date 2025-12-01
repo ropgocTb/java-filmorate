@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -16,43 +15,43 @@ import java.util.Set;
 @Getter
 @RequiredArgsConstructor
 public class UserService {
-    @Autowired private final UserStorage userStorage;
+    private final UserStorage userStorage;
 
-    public void addFriend(long id1, long id2) {
-        User user1 = userStorage.getUserById(id1);
-        User user2 = userStorage.getUserById(id2);
+    public void addFriend(long userId, long friendId) {
+        User user = userStorage.getUserById(userId);
+        User friend = userStorage.getUserById(friendId);
 
-        Set<Long> friends1 = user1.getFriends();
-        Set<Long> friends2 = user2.getFriends();
+        Set<Long> friends1 = user.getFriends();
+        Set<Long> friends2 = friend.getFriends();
 
-        friends1.add(user2.getId());
-        friends2.add(user1.getId());
+        friends1.add(friendId);
+        friends2.add(userId);
 
-        user1.setFriends(friends1);
-        user2.setFriends(friends2);
+        user.setFriends(friends1);
+        friend.setFriends(friends2);
 
-        userStorage.updateUser(user1);
-        userStorage.updateUser(user2);
-        log.info("User: {} and User: {} are now friends!", user1.getId(), user2.getId());
+        userStorage.updateUser(user);
+        userStorage.updateUser(friend);
+        log.info("User: {} and User: {} are now friends!", user.getId(), friend.getId());
     }
 
-    public void removeFriend(long id1, long id2) {
-        User user1 = userStorage.getUserById(id1);
-        User user2 = userStorage.getUserById(id2);
+    public void removeFriend(long userId, long friendId) {
+        User user = userStorage.getUserById(userId);
+        User friend = userStorage.getUserById(friendId);
 
-        Set<Long> friends1 = user1.getFriends();
-        Set<Long> friends2 = user2.getFriends();
+        Set<Long> friends1 = user.getFriends();
+        Set<Long> friends2 = friend.getFriends();
 
-        friends1.remove(user2.getId());
-        friends2.remove(user1.getId());
+        friends1.remove(friendId);
+        friends2.remove(userId);
 
-        user1.setFriends(friends1);
-        user2.setFriends(friends2);
+        user.setFriends(friends1);
+        friend.setFriends(friends2);
 
-        userStorage.updateUser(user1);
-        userStorage.updateUser(user2);
+        userStorage.updateUser(user);
+        userStorage.updateUser(friend);
 
-        log.info("User: {} and User: {} are not friends anymore", user1.getId(), user2.getId());
+        log.info("User: {} and User: {} are not friends anymore", user.getId(), friend.getId());
     }
 
     public List<User> getUserFriends(long id) {
