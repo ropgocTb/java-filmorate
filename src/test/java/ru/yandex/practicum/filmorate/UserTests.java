@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -21,13 +20,14 @@ public class UserTests {
 
     @BeforeEach
     public void init() {
-        UserStorage storage = new InMemoryUserStorage();
-        controller = new UserController(new UserService(storage));
+        UserService service = new UserService();
+        service.setUserStorage(new InMemoryUserStorage());
+        controller = new UserController(service);
     }
 
     @Test
     public void userValidInputAddTest() {
-        User user = new User();
+        User user = User.builder().build();
         user.setName("Andrew");
         user.setEmail("123@");
         user.setLogin("asdfasdfasdf");
@@ -39,7 +39,7 @@ public class UserTests {
 
     @Test
     public void userEmptyEmailTest() {
-        User user = new User();
+        User user = User.builder().build();
         user.setName("Andrew");
         user.setEmail("");
         user.setLogin("asdfasdfasdf");
@@ -52,7 +52,7 @@ public class UserTests {
 
     @Test
     public void userEmailDoesNotContainAtSymbolTest() {
-        User user = new User();
+        User user = User.builder().build();
         user.setName("Andrew");
         user.setEmail("123");
         user.setLogin("asdfasdfasdf");
@@ -65,7 +65,7 @@ public class UserTests {
 
     @Test
     public void userLoginEmptyTest() {
-        User user = new User();
+        User user = User.builder().build();
         user.setName("Andrew");
         user.setEmail("123@");
         user.setLogin("");
@@ -79,7 +79,7 @@ public class UserTests {
 
     @Test
     public void userEmptyNameReplacedWithLoginTest() {
-        User user = new User();
+        User user = User.builder().build();
         user.setEmail("123@");
         user.setLogin("asdfasdfasdf");
         user.setBirthday(LocalDate.of(2002, Month.DECEMBER, 2));
@@ -91,7 +91,8 @@ public class UserTests {
 
     @Test
     public void userFutureBirthdateTest() {
-        User user = new User();
+        User user = User.builder().build();
+        ;
         user.setName("Andrew");
         user.setEmail("123@");
         user.setLogin("asdfasdfasdf");
@@ -106,7 +107,7 @@ public class UserTests {
 
     @Test
     public void userUpdateTest() {
-        User user = new User();
+        User user = User.builder().build();
         user.setName("Andrew");
         user.setEmail("123@");
         user.setLogin("123");
@@ -131,14 +132,14 @@ public class UserTests {
 
     @Test
     public void loginWithAWhiteSpaceTest() {
-        User user = new User();
+        User user = User.builder().build();
         user.setLogin("1 1");
         user.setBirthday(LocalDate.now().minusDays(1));
         user.setEmail("123@");
         user.setName("Name");
 
         assertThrows(RuntimeException.class, () -> {
-           controller.addUser(user);
+            controller.addUser(user);
         });
         assertEquals(0, controller.getUsers().size(), "пользователь с пробелом в логине добавился");
     }

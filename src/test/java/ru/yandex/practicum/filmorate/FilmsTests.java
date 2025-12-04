@@ -21,14 +21,15 @@ class FilmsTests {
 
     @BeforeEach
     public void init() {
-        InMemoryFilmStorage filmStorage = new InMemoryFilmStorage();
-        InMemoryUserStorage userStorage = new InMemoryUserStorage();
-        controller = new FilmController(new FilmService(filmStorage, userStorage));
+        FilmService service = new FilmService();
+        service.setUserStorage(new InMemoryUserStorage());
+        service.setFilmStorage(new InMemoryFilmStorage());
+        controller = new FilmController(service);
     }
 
     @Test
     public void filmAddValidTest() {
-        Film film = new Film();
+        Film film = Film.builder().build();
         film.setName("Requiem for a Dream");
         film.setDescription("не надо употреблять, не надо, реально, ну зачем? (reason?)");
         film.setReleaseDate(LocalDate.of(2000, Month.DECEMBER, 1));
@@ -38,9 +39,9 @@ class FilmsTests {
         assertEquals(1, controller.getFilms().getFirst().getId(), "фильм не добавился");
     }
 
-	@Test
+    @Test
     public void filmEmptyNameTest() {
-        Film film = new Film();
+        Film film = Film.builder().build();
         assertThrows(RuntimeException.class, () -> {
             Film film1 = controller.addFilm(film);
         });
@@ -48,7 +49,7 @@ class FilmsTests {
 
     @Test
     public void filmMaxCharactersTest() {
-        Film film = new Film();
+        Film film = Film.builder().build();
         film.setName("Requiem for a Dream");
         film.setDescription("?".repeat(200));
         film.setReleaseDate(LocalDate.of(2000, Month.DECEMBER, 1));
@@ -60,7 +61,7 @@ class FilmsTests {
 
     @Test
     public void filmMaxCharactersPlusOneTest() {
-        Film film = new Film();
+        Film film = Film.builder().build();
         film.setName("Requiem for a Dream");
         film.setDescription("?".repeat(201));
         film.setReleaseDate(LocalDate.of(2000, Month.DECEMBER, 1));
@@ -73,7 +74,7 @@ class FilmsTests {
 
     @Test
     public void filmReleaseDateTest() {
-        Film film = new Film();
+        Film film = Film.builder().build();
         film.setName("Requiem for a Dream");
         film.setDescription("?".repeat(201));
         film.setReleaseDate(LocalDate.now().plusDays(1));
@@ -86,7 +87,7 @@ class FilmsTests {
 
     @Test
     public void filmDurationFilmNegativeTest() {
-        Film film = new Film();
+        Film film = Film.builder().build();
         film.setName("Requiem for a Dream");
         film.setDescription("не надо употреблять, не надо, реально, ну зачем? (reason?)");
         film.setReleaseDate(LocalDate.of(2000, Month.DECEMBER, 1));
@@ -99,7 +100,7 @@ class FilmsTests {
 
     @Test
     public void filmUpdateTest() {
-        Film film = new Film();
+        Film film = Film.builder().build();
         film.setName("Requiem for a Dream");
         film.setDescription("не надо употреблять, не надо, реально, ну зачем? (reason?)");
         film.setReleaseDate(LocalDate.of(2000, Month.DECEMBER, 1));
