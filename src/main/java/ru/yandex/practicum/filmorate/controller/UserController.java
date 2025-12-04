@@ -48,6 +48,11 @@ public class UserController {
         userService.addFriend(id, friendId);
     }
 
+    @PutMapping("/{id}/friends/confirm")
+    public void confirmFriends(@PathVariable final long id) {
+        userService.confirmFriends(id);
+    }
+
     @DeleteMapping
     public void deleteUser(@RequestBody User user) {
         userService.getUserStorage().deleteUser(user);
