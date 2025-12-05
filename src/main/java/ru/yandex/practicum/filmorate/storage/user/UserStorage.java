@@ -17,11 +17,11 @@ public interface UserStorage {
 
     void addFriend(long userId, long friendId);
 
-    public void removeFriend(long userId, long friendId);
+    void removeFriend(long userId, long friendId);
 
-    public List<User> getUserFriends(long id);
+    List<User> getUserFriends(long id);
 
-    public List<User> getCommonFriends(long id, long friendId);
+    List<User> getCommonFriends(long id, long friendId);
 
-    public void confirmFriends(long id);
+    void confirmFriends(long id);
 }
