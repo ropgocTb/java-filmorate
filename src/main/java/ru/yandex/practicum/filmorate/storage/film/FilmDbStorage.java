@@ -11,18 +11,23 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Primary
 @Component("FilmDbStorage")
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
+    private final UserStorage userStorage;
     private final JdbcTemplate jdbcTemplate;
 
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
@@ -132,6 +137,70 @@ public class FilmDbStorage implements FilmStorage {
         String sqlQuery = "select id, title, description, release_date, duration, rating_id " +
                 "from films";
         return jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
+    }
+
+    @Override
+    public Film addLike(long filmId, long userId) {
+        Film film = getFilmById(filmId);
+        User user = userStorage.getUserById(userId);
+        String sqlQuery = "insert into likes (film_id, user_id) " +
+                "values (?, ?)";
+        jdbcTemplate.update(sqlQuery,
+                film.getId(),
+                user.getId());
+        return getFilmById(filmId);
+    }
+
+    @Override
+    public Film removeLike(long filmId, long userId) {
+        Film film = getFilmById(filmId);
+        User user = userStorage.getUserById(userId);
+
+        String sqlQuery = "delete from likes where film_id = ? and user_id = ?";
+        jdbcTemplate.update(sqlQuery, film.getId(), user.getId());
+
+        return getFilmById(filmId);
+    }
+
+    @Override
+    public List<Genre> getGenres() {
+        String sqlQuery = "select id, name from genres";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToGenre);
+    }
+
+    @Override
+    public Genre getGenreById(long id) {
+        String sqlQuery = "select id, name from genres where id = ?";
+        try {
+            return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToGenre, id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new NotFoundException("no such genre id");
+        }
+    }
+
+    @Override
+    public List<Rating> getMpa() {
+        String sqlQuery = "select id, name from ratings";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToRating);
+    }
+
+    @Override
+    public Rating getMpaById(long id) {
+        String sqlQuery = "select id, name from ratings where id = ?";
+        try {
+            return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToRating, id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new NotFoundException("no such rating id");
+        }
+    }
+
+    @Override
+    public List<Film> getPopularFilms(int max) {
+        return getFilms().stream()
+                .sorted(Comparator.comparing(Film::getLikesCount)
+                        .reversed())
+                .limit(max)
+                .collect(Collectors.toList());
     }
 
     private void validateFilm(Film film) {

@@ -7,10 +7,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Component("InMemoryUserStorage")
@@ -54,6 +51,68 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public List<User> getUsers() {
         return new ArrayList<>(users.values());
+    }
+
+    @Override
+    public void addFriend(long userId, long friendId) {
+        User user = getUserById(userId);
+        User friend = getUserById(friendId);
+        Set<Long> friends1 = user.getFriends();
+        Set<Long> friends2 = friend.getFriends();
+
+        friends1.add(friendId);
+        friends2.add(userId);
+
+        user.setFriends(friends1);
+        friend.setFriends(friends2);
+
+        updateUser(user);
+        updateUser(friend);
+        log.info("User: {} and User: {} are now friends!", user.getId(), friend.getId());
+    }
+
+    @Override
+    public void removeFriend(long userId, long friendId) {
+        User user = getUserById(userId);
+        User friend = getUserById(friendId);
+
+        Set<Long> friends1 = user.getFriends();
+        Set<Long> friends2 = friend.getFriends();
+
+        friends1.remove(friendId);
+        friends2.remove(userId);
+
+        user.setFriends(friends1);
+        friend.setFriends(friends2);
+
+        updateUser(user);
+        updateUser(friend);
+
+        log.info("User: {} and User: {} are not friends anymore", user.getId(), friend.getId());
+    }
+
+    @Override
+    public List<User> getUserFriends(long id) {
+        User user = getUserById(id);
+        return user.getFriends().stream()
+                .map(this::getUserById)
+                .toList();
+    }
+
+    @Override
+    public List<User> getCommonFriends(long id, long friendId) {
+        User user1 = getUserById(id);
+        User user2 = getUserById(friendId);
+
+        return user1.getFriends().stream()
+                .filter(user2.getFriends()::contains)
+                .map(this::getUserById)
+                .toList();
+    }
+
+    @Override
+    public void confirmFriends(long id) {
+
     }
 
     private void validateUser(User user) {

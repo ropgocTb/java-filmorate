@@ -1,21 +1,26 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Rating;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component("InMemoryFilmStorage")
+@RequiredArgsConstructor
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
+    private final UserStorage userStorage;
 
     @Override
     public Film addFilm(Film film) {
@@ -52,6 +57,57 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public List<Film> getFilms() {
         return new ArrayList<>(films.values());
+    }
+
+    @Override
+    public List<Film> getPopularFilms(int max) {
+        return getFilms().stream()
+                .sorted(Comparator.comparing((Film film) -> film.getLikes() != null ? film.getLikes().size() : 0)
+                        .reversed())
+                .limit(max)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Film addLike(long filmId, long userId) {
+        Film film = getFilmById(filmId);
+        User user = userStorage.getUserById(userId);
+
+        Set<Long> likes = film.getLikes();
+        likes.add(user.getId());
+        film.setLikes(likes);
+        return updateFilm(film);
+    }
+
+    @Override
+    public Film removeLike(long filmId, long userId) {
+        Film film = getFilmById(filmId);
+        User user = userStorage.getUserById(userId);
+
+        Set<Long> likes = film.getLikes();
+        likes.remove(user.getId());
+        film.setLikes(likes);
+        return updateFilm(film);
+    }
+
+    @Override
+    public List<Genre> getGenres() {
+        return List.of();
+    }
+
+    @Override
+    public Genre getGenreById(long id) {
+        return null;
+    }
+
+    @Override
+    public List<Rating> getMpa() {
+        return List.of();
+    }
+
+    @Override
+    public Rating getMpaById(long id) {
+        return null;
     }
 
     private void validateFilm(Film film) {

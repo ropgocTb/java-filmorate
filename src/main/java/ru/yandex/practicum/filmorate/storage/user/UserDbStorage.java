@@ -14,7 +14,10 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Primary
 @Slf4j
@@ -91,6 +94,62 @@ public class UserDbStorage implements UserStorage {
     public List<User> getUsers() {
         String sqlQuery = "select id, email, login, name, birthday from users";
         return jdbcTemplate.query(sqlQuery, this::mapRowToUser);
+    }
+
+    @Override
+    public void addFriend(long userId, long friendId) {
+        User user = getUserById(userId);
+        User friend = getUserById(friendId);
+        String sqlQuery = "insert into friends (user_id, friend_id, status_id) " +
+                "values (?, ?, ?)";
+        jdbcTemplate.update(sqlQuery,
+                user.getId(),
+                friend.getId(),
+                2);
+        log.info("User: {} and User: {} are now friends!", user.getId(), friend.getId());
+    }
+
+    @Override
+    public void removeFriend(long userId, long friendId) {
+        User user = getUserById(userId);
+        User friend = getUserById(friendId);
+
+        String sqlQuery = "delete from friends where user_id = ? and friend_id = ?";
+        jdbcTemplate.update(sqlQuery, user.getId(), friend.getId());
+
+        log.info("User: {} and User: {} are not friends anymore", user.getId(), friend.getId());
+    }
+
+    @Override
+    public List<User> getUserFriends(long id) {
+        User user = getUserById(id);
+        List<User> friends = new ArrayList<>();
+        for (Long userId : user.getUserFriends()) {
+            friends.add(getUserById(userId));
+        }
+        return friends;
+    }
+
+    @Override
+    public List<User> getCommonFriends(long id, long friendId) {
+        User user1 = getUserById(id);
+        User user2 = getUserById(friendId);
+
+        List<User> commonFriends = new ArrayList<>();
+        Set<Long> commonSet = new HashSet<>(user1.getUserFriends());
+        commonSet.retainAll(user2.getUserFriends());
+        for (Long commonFriend : commonSet) {
+            commonFriends.add(getUserById(commonFriend));
+        }
+        return commonFriends;
+    }
+
+    @Override
+    public void confirmFriends(long id) {
+        User user = getUserById(id);
+        String sqlQuery = "update friends set status_id = 1 where friend_id = ?";
+        jdbcTemplate.update(sqlQuery, user.getId());
+        log.info("All friend requests now have status confirmed for friend_id: {}", id);
     }
 
     private void validateUser(User user) {
