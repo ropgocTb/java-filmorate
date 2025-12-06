@@ -3,11 +3,12 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -17,99 +18,100 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 class FilmsTests {
-    FilmController controller;
+    FilmService service;
+    private final UserStorage userStorage = new InMemoryUserStorage();
+    private final FilmStorage filmStorage = new InMemoryFilmStorage(userStorage);
 
     @BeforeEach
     public void init() {
-        InMemoryFilmStorage filmStorage = new InMemoryFilmStorage();
-        InMemoryUserStorage userStorage = new InMemoryUserStorage();
-        controller = new FilmController(new FilmService(filmStorage, userStorage));
+        service = new FilmService(filmStorage);
     }
 
     @Test
     public void filmAddValidTest() {
-        Film film = new Film();
+        Film film = Film.builder().build();
         film.setName("Requiem for a Dream");
         film.setDescription("не надо употреблять, не надо, реально, ну зачем? (reason?)");
         film.setReleaseDate(LocalDate.of(2000, Month.DECEMBER, 1));
         film.setDuration(103);
 
-        controller.addFilm(film);
-        assertEquals(1, controller.getFilms().getFirst().getId(), "фильм не добавился");
+        service.addFilm(film);
+        assertEquals(1, service.getFilms().getFirst().getId(), "фильм не добавился");
     }
 
-	@Test
+    @Test
     public void filmEmptyNameTest() {
-        Film film = new Film();
+        Film film = Film.builder().build();
         assertThrows(RuntimeException.class, () -> {
-            Film film1 = controller.addFilm(film);
+            Film film1 = service.addFilm(film);
         });
     }
 
     @Test
     public void filmMaxCharactersTest() {
-        Film film = new Film();
+        Film film = Film.builder().build();
         film.setName("Requiem for a Dream");
         film.setDescription("?".repeat(200));
         film.setReleaseDate(LocalDate.of(2000, Month.DECEMBER, 1));
         film.setDuration(103);
 
-        controller.addFilm(film);
-        assertEquals(1, controller.getFilms().size(), "фильм с описанием в 200 символов не добавился");
+        service.addFilm(film);
+        assertEquals(1, service.getFilms().size(),
+                "фильм с описанием в 200 символов не добавился");
     }
 
     @Test
     public void filmMaxCharactersPlusOneTest() {
-        Film film = new Film();
+        Film film = Film.builder().build();
         film.setName("Requiem for a Dream");
         film.setDescription("?".repeat(201));
         film.setReleaseDate(LocalDate.of(2000, Month.DECEMBER, 1));
         film.setDuration(103);
 
         assertThrows(RuntimeException.class, () -> {
-            controller.addFilm(film);
+            service.addFilm(film);
         });
     }
 
     @Test
     public void filmReleaseDateTest() {
-        Film film = new Film();
+        Film film = Film.builder().build();
         film.setName("Requiem for a Dream");
         film.setDescription("?".repeat(201));
         film.setReleaseDate(LocalDate.now().plusDays(1));
         film.setDuration(103);
 
         assertThrows(RuntimeException.class, () -> {
-            controller.addFilm(film);
+            service.addFilm(film);
         });
     }
 
     @Test
     public void filmDurationFilmNegativeTest() {
-        Film film = new Film();
+        Film film = Film.builder().build();
         film.setName("Requiem for a Dream");
         film.setDescription("не надо употреблять, не надо, реально, ну зачем? (reason?)");
         film.setReleaseDate(LocalDate.of(2000, Month.DECEMBER, 1));
         film.setDuration(-103);
 
         assertThrows(RuntimeException.class, () -> {
-            controller.addFilm(film);
+            service.addFilm(film);
         });
     }
 
     @Test
     public void filmUpdateTest() {
-        Film film = new Film();
+        Film film = Film.builder().build();
         film.setName("Requiem for a Dream");
         film.setDescription("не надо употреблять, не надо, реально, ну зачем? (reason?)");
         film.setReleaseDate(LocalDate.of(2000, Month.DECEMBER, 1));
         film.setDuration(103);
 
-        controller.addFilm(film);
+        service.addFilm(film);
 
         film.setDuration(107);
 
-        assertEquals(107, controller.getFilms().getFirst().getDuration(), "фильм не " +
+        assertEquals(107, service.getFilms().getFirst().getDuration(), "фильм не " +
                 "обновился");
     }
 
@@ -117,7 +119,7 @@ class FilmsTests {
     @Test
     public void emptyRequestTest() {
         assertThrows(NullPointerException.class, () -> {
-            controller.addFilm(null);
+            service.addFilm(null);
         });
     }
 }

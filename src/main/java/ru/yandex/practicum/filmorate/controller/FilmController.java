@@ -15,12 +15,12 @@ public class FilmController {
 
     @GetMapping
     public List<Film> getFilms() {
-        return service.getFilmStorage().getFilms();
+        return service.getFilms();
     }
 
     @GetMapping("/{id}")
     public Film getFilmById(@PathVariable long id) {
-        return service.getFilmStorage().getFilmById(id);
+        return service.getFilmById(id);
     }
 
     @GetMapping("/popular")
@@ -30,12 +30,12 @@ public class FilmController {
 
     @PostMapping
     public Film addFilm(@RequestBody Film film) {
-        return service.getFilmStorage().addFilm(film);
+        return service.addFilm(film);
     }
 
     @PutMapping
     public Film updateFilm(@RequestBody Film film) {
-        return service.getFilmStorage().updateFilm(film);
+        return service.updateFilm(film);
     }
 
     @PutMapping("/{id}/like/{userId}")
@@ -45,7 +45,7 @@ public class FilmController {
 
     @DeleteMapping
     public void removeFilm(@RequestBody Film film) {
-        service.getFilmStorage().removeFilm(film);
+        service.removeFilm(film);
     }
 
     @DeleteMapping("/{id}/like/{userId}")

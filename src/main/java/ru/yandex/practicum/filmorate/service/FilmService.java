@@ -1,50 +1,67 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
-@Getter
-@RequiredArgsConstructor
 public class FilmService {
     private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
+
+    public FilmService(@Qualifier("FilmDbStorage") FilmStorage filmStorage) {
+        this.filmStorage = filmStorage;
+    }
 
     public Film addLike(long filmId, long userId) {
-        Film film = filmStorage.getFilmById(filmId);
-        User user = userStorage.getUserById(userId);
-
-        Set<Long> likes = film.getLikes();
-        likes.add(user.getId());
-        film.setLikes(likes);
-        return filmStorage.updateFilm(film);
+        return filmStorage.addLike(filmId, userId);
     }
 
     public Film removeLike(long filmId, long userId) {
-        Film film = filmStorage.getFilmById(filmId);
-        User user = userStorage.getUserById(userId);
+        return filmStorage.removeLike(filmId, userId);
+    }
 
-        Set<Long> likes = film.getLikes();
-        likes.remove(user.getId());
-        film.setLikes(likes);
+    public Film addFilm(Film film) {
+        return filmStorage.addFilm(film);
+    }
+
+    public Film updateFilm(Film film) {
         return filmStorage.updateFilm(film);
     }
 
+    public void removeFilm(Film film) {
+        filmStorage.removeFilm(film);
+    }
+
+    public Film getFilmById(long id) {
+        return filmStorage.getFilmById(id);
+    }
+
+    public List<Film> getFilms() {
+        return filmStorage.getFilms();
+    }
+
     public List<Film> getPopularFilms(int max) {
-        return filmStorage.getFilms().stream()
-                .sorted(Comparator.comparing((Film film) -> film.getLikes() != null ? film.getLikes().size() : 0)
-                        .reversed())
-                .limit(max)
-                .collect(Collectors.toList());
+        return filmStorage.getPopularFilms(max);
+    }
+
+    public List<Genre> getGenres() {
+        return filmStorage.getGenres();
+    }
+
+    public Genre getGenreById(long id) {
+        return filmStorage.getGenreById(id);
+    }
+
+    public List<Rating> getMpa() {
+        return filmStorage.getMpa();
+    }
+
+    public Rating getMpaById(long id) {
+        return filmStorage.getMpaById(id);
     }
 }
